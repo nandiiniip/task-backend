@@ -1,1 +1,4 @@
 venv/
+.env
+private.pem
+public.pem

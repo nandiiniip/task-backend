@@ -1,7 +1,17 @@
 from fastapi import FastAPI
+from configuration import init_db
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
 
-@app.get("/")
-def read_root():
-    return {"message": " Hello World"};
+app = FastAPI(lifespan=lifespan)
+
+
+
+from routes import router
+
+app.include_router(router)
+
