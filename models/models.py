@@ -9,3 +9,10 @@ class UserRegister(Document):
 
     class Settings:
         collection = "users-register"
+
+class UserLogin(Document):
+    email: EmailStr = Field(...)
+    password: str = Field(..., min_length=8)
+
+    class Settings:
+        collection = "users-login"
