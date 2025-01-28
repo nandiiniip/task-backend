@@ -1,18 +1,19 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import Dict
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from models import UserRegister, UserLogin
 from utils import get_password_hash, verify_password,create_access_token, create_refresh_token, verify_token
 
 router = APIRouter()
 
 @router.post("/register", response_model=dict)
-async def register_user(user: UserRegister, confirm_password: str):
+async def register_user(user: UserRegister):
     existing_user = await UserRegister.find_one(UserRegister.email == user.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="User with this email already exists")
 
-    if user.password != confirm_password:
-        raise HTTPException(status_code=400, detail="Passwords do not match")
+    # if user.password != confirm_password:
+    #     raise HTTPException(status_code=400, detail="Passwords do not match")
     
     hashed_password = get_password_hash(user.password)
     new_user = UserRegister(
