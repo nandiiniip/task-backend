@@ -16,9 +16,10 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-load_dotenv()
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path=env_path)
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-SENDER_PASSWORD = "myqfbrzatlnsvptc"
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD1")
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """Decode the token and get the current user."""
@@ -70,9 +71,6 @@ async def register_user(user: UserRegister):
     existing_user = await UserRegister.find_one(UserRegister.email == user.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="User with this email already exists")
-
-    # if user.password != confirm_password:
-    #     raise HTTPException(status_code=400, detail="Passwords do not match")
     
     hashed_password = get_password_hash(user.password)
     new_user = UserRegister(
@@ -90,13 +88,10 @@ refresh_token_store: Dict[str, str] = {}
 
 @router.post("/login", response_model=dict)
 async def login(user: UserLogin):
-    """Authenticate the user and return tokens."""
-    # Find the user in the database
     db_user = await UserRegister.find_one(UserRegister.email == user.email)
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
      
-    # Generate access and refresh tokens
     access_token = create_access_token(data={"sub": db_user.email})
     refresh_token = create_refresh_token(data={"sub": db_user.email})
 
@@ -111,15 +106,12 @@ async def refresh(refresh_token: str):
     payload = verify_token(refresh_token, "refresh")
     email = payload.get("sub")
 
-    # Check if the token matches the stored one
     if not email or refresh_token_store.get(email) != refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
     
-    # Generate new tokens
     new_access_token = create_access_token(data={"sub": email})
     new_refresh_token = create_refresh_token(data={"sub": email})
 
-    # Rotate the refresh token
     refresh_token_store[email] = new_refresh_token
 
     return {"access_token": new_access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
@@ -130,7 +122,6 @@ async def logout(token: str):
     payload = verify_token(token, "access")
     email = payload.get("sub")
 
-    # Remove the refresh token from the store
     if email in refresh_token_store:
         del refresh_token_store[email]
 
