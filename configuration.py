@@ -1,6 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
-from models import UserRegister, UserLogin
+from models import UserRegister, UserLogin, PasswordReset
 import certifi
 import os
 from dotenv import load_dotenv
@@ -15,4 +15,4 @@ uri = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@{MONGODB_HOST}/?retr
 async def init_db():
     client = AsyncIOMotorClient(uri, tlsCAFile=certifi.where())
     db = client.taskdb
-    await init_beanie(database=db, document_models=[UserRegister, UserLogin])
+    await init_beanie(database=db, document_models=[UserRegister, UserLogin, PasswordReset])
