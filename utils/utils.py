@@ -23,7 +23,7 @@ with open(PUBLIC_KEY_PATH, "r") as f:
     PUBLIC_KEY = f.read()
 
 # JWT Constants
-ALGORITHM = os.getenv("ALGORITHM")
+ALGORITHM = "RS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
