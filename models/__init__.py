@@ -1,6 +1,7 @@
-from .models import UserRegister, UserLogin
+from .models import UserRegister, UserLogin, PasswordReset
 
 __all__ =(
     UserRegister, 
-    UserLogin
+    UserLogin,
+    PasswordReset
 )
